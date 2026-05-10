@@ -1,7 +1,10 @@
 import feedparser
+
 from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
 from zoneinfo import ZoneInfo
+
+from jinja2 import Environment, FileSystemLoader
 
 from config import (
     SOURCE_RSS,
@@ -15,9 +18,10 @@ all_entries = []
 seen = set()
 
 # limite ultimi x giorni
-cutoff_date = datetime.now().astimezone() - timedelta(DAYS_LIMIT)
+cutoff_date = datetime.now().astimezone() - timedelta(days=DAYS_LIMIT)
 
 for url in SOURCE_RSS:
+
     feed = feedparser.parse(url)
 
     # nome della fonte RSS
@@ -37,13 +41,13 @@ for url in SOURCE_RSS:
         try:
             parsed_date = parsedate_to_datetime(raw_date)
 
-            # filtra ultimi 30 giorni
+            # filtra ultimi x giorni
             if parsed_date < cutoff_date:
                 continue
 
             published = parsed_date.strftime("%d/%m/%Y %H:%M")
 
-        except:
+        except Exception:
             parsed_date = datetime.now().astimezone()
             published = "Data non disponibile"
 
@@ -58,57 +62,27 @@ for url in SOURCE_RSS:
             "parsed_date": parsed_date,
         })
 
-# ordina per data decrescente (più recente prima)
+# ordina per data decrescente
 all_entries.sort(
     key=lambda x: x["parsed_date"],
     reverse=True
 )
 
-html = f"""
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<title>{PAGE_TITLE}</title>
-<link rel="stylesheet" href="static/style.css">
-</head>
+# setup template engine
+env = Environment(
+    loader=FileSystemLoader("templates")
+)
 
-<body>
+template = env.get_template("homepage.html")
 
-<h1>🎮 {PAGE_TITLE}</h1>
-
-<p>Ultimo aggiornamento: {datetime.now().astimezone(TIMEZONE).strftime("%d/%m/%Y %H:%M")}</p>
-"""
-
-for article in all_entries:
-    html += f"""
-    <div class="article">
-
-        <div class="meta">
-            <strong>Fonte:</strong> {article['source']} |
-            <strong>Data:</strong> {article['published']}
-        </div>
-
-        <h2>
-            <a href="{article['link']}" target="_blank">
-                {article['title']}
-            </a>
-        </h2>
-
-        <div class="summary">
-            {article['summary']}
-        </div>
-    </div>
-    """
-
-html += f"""
-<div class="footer">
-{FOOTER_TEXT}
-</div>
-
-</body>
-</html>
-"""
+html = template.render(
+    page_title=PAGE_TITLE,
+    footer_text=FOOTER_TEXT,
+    updated_at=datetime.now()
+        .astimezone(TIMEZONE)
+        .strftime("%d/%m/%Y %H:%M"),
+    articles=all_entries
+)
 
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html)
