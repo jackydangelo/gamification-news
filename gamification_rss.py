@@ -36,7 +36,11 @@ for url in SOURCE_RSS:
             continue
 
         # recupera data articolo
-        raw_date = getattr(entry, "published", "")
+        raw_date = (
+            getattr(entry, "published", None)
+            or getattr(entry, "updated", None)
+            or ""
+        )
 
         try:
             parsed_date = parsedate_to_datetime(raw_date)
