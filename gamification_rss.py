@@ -1,7 +1,6 @@
 import feedparser
 
 from datetime import datetime, timedelta
-from email.utils import parsedate_to_datetime
 from zoneinfo import ZoneInfo
 
 from jinja2 import Environment, FileSystemLoader
@@ -36,14 +35,21 @@ for url in SOURCE_RSS:
             continue
 
         # recupera data articolo
-        raw_date = (
-            getattr(entry, "published", None)
-            or getattr(entry, "updated", None)
-            or ""
+        raw_parsed = (
+            getattr(entry, "published_parsed", None)
+            or getattr(entry, "updated_parsed", None)
         )
 
         try:
-            parsed_date = parsedate_to_datetime(raw_date)
+
+            # nessuna data -> scarta articolo
+            if not raw_parsed:
+                continue
+
+            parsed_date = datetime(
+                *raw_parsed[:6],
+                tzinfo=ZoneInfo("UTC")
+            ).astimezone()
 
             # filtra ultimi x giorni
             if parsed_date < cutoff_date:
@@ -51,9 +57,12 @@ for url in SOURCE_RSS:
 
             published = parsed_date.strftime("%d/%m/%Y %H:%M")
 
-        except Exception:
-            parsed_date = datetime.now().astimezone()
-            published = "Data non disponibile"
+        except Exception as e:
+
+            print("Errore parsing data:", title, e)
+
+            # data non valida -> scarta
+            continue
 
         seen.add(title)
 
