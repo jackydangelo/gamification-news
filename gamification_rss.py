@@ -101,7 +101,7 @@ for article in all_entries:
     </div>
     """
 
-html += """
+html += f"""
 <div class="footer">
 {FOOTER_TEXT}
 </div>
