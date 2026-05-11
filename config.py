@@ -4,8 +4,8 @@ SOURCE_RSS = [
     "https://news.google.com/rss/search?q=gamification",
     "https://news.google.com/rss/search?q=gamification&hl=it&gl=IT&ceid=IT:it"
     "https://news.google.com/rss/search?q=gamified",
-    "https://news.google.com/rss/search?q=gamificata&hl=it&gl=IT&ceid=IT:it"
-    "https://news.google.com/rss/search?q=gamificato&hl=it&gl=IT&ceid=IT:it"
+    "https://news.google.com/rss/search?q=gamificata&hl=it&gl=IT&ceid=IT:it",
+    "https://news.google.com/rss/search?q=gamificato&hl=it&gl=IT&ceid=IT:it",
     "https://www.reddit.com/search.rss?q=gamification"
 ]
 
