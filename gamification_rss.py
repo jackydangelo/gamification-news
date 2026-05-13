@@ -68,12 +68,13 @@ def extract_articles(
     source = getattr(feed.feed, "title", "Fonte sconosciuta")
 
     for entry in feed.entries:
-
+        
+        title = entry.title.strip()
         url = normalize_url(entry.link)
         
         if url in seen:
             continue
-
+        
         parsed_date = parse_entry_date(entry)
 
         if not parsed_date:
