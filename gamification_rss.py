@@ -13,6 +13,10 @@ from config import (
     FOOTER_TEXT
 )
 
+"""Environment Jinja condiviso a livello del modulo per evitare ricreazioni inutili e riutilizzare la cache interna dei template."""
+ENV = Environment(
+    loader=FileSystemLoader("templates")
+)
 
 def get_cutoff_date(now: datetime, days_limit: int) -> datetime:
     """Restituisce la data limite per filtrare gli articoli."""
@@ -21,7 +25,6 @@ def get_cutoff_date(now: datetime, days_limit: int) -> datetime:
 
 def parse_entry_date(entry) -> datetime | None:
     """Converte la data dell'articolo in datetime timezone-aware."""
-
     raw_parsed = (
         getattr(entry, "published_parsed", None)
         or getattr(entry, "updated_parsed", None)
@@ -113,11 +116,7 @@ def render_html(
     now: datetime
 ) -> str:
 
-    env = Environment(
-        loader=FileSystemLoader("templates")
-    )
-
-    template = env.get_template("homepage.html")
+    template = ENV.get_template("homepage.html")
 
     return template.render(
         page_title=PAGE_TITLE,
