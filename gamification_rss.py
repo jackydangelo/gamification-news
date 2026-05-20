@@ -14,18 +14,18 @@ from config import (
     FOOTER_TEXT
 )
 
-"""Environment Jinja condiviso a livello del modulo per evitare ricreazioni inutili e riutilizzare la cache interna dei template."""
+"""A module-level shared Jinja environment to avoid unnecessary recreations and reuse the internal template cache."""
 ENV = Environment(
     loader=FileSystemLoader("templates")
 )
 
 def get_cutoff_date(now: datetime, days_limit: int) -> datetime:
-    """Restituisce la data limite per filtrare gli articoli."""
+    """Returns the cutoff date for filtering articles."""
     return now - timedelta(days=days_limit)
 
 
 def parse_entry_date(entry) -> datetime | None:
-    """Converte la data dell'articolo in datetime timezone-aware."""
+    """Converts the article date to a timezone-aware datetime."""
     raw_parsed = (
         getattr(entry, "published_parsed", None)
         or getattr(entry, "updated_parsed", None)
@@ -41,7 +41,7 @@ def parse_entry_date(entry) -> datetime | None:
         ).astimezone()
 
     except Exception as e:
-        print("Errore parsing data:", getattr(entry, "title", "N/A"), e)
+        print("Error parsing data:", getattr(entry, "title", "N/A"), e)
         return None
 
 def normalize_url(url: str) -> str:
@@ -117,7 +117,7 @@ def collect_articles(cutoff_date: datetime) -> list:
         reverse=True
     )
 
-    # Rimuove il campo tecnico usato solo per sorting. Questa scelta è per separare i dati tecnici da quelli realmente utilizzati dall'html
+    """Removes the technical field used solely for sorting. This is done to separate the technical data from the data actually used by the HTML."""
     for article in all_articles: article.pop("parsed_date", None)
 
     return all_articles
@@ -165,7 +165,7 @@ def main():
 
     save_html(html)
 
-    print("HTML generato: docs/index.html")
+    print("HTML created: docs/index.html")
 
 
 if __name__ == "__main__":
